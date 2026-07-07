@@ -62,8 +62,11 @@ export async function notifyStudentBooked(b: {
     `Здравствуйте, ${b.student_name}!\n\n` +
     `Вы записаны на практическое занятие в автошколе ${SCHOOL.name}.\n\n` +
     `📅 Дата: ${formatDateLong(b.date)}\n` +
-    `🕐 Время: ${b.start_time} - ${b.end_time}\n\n` +
-    `Отменить запись можно не позднее чем за сутки:\n${link}\n\n` +
+    `🕐 Время: ${b.start_time} - ${b.end_time}\n` +
+    `📍 Место: ${SCHOOL.address}\n` +
+    `🚗 Авто: ${SCHOOL.car}\n` +
+    `💳 Предоплата: ${SCHOOL.prepayment.toLocaleString("ru-RU")} тг (при неявке не возвращается)\n\n` +
+    `Если не сможете прийти — отмените не позднее чем за 4 часа:\n${link}\n\n` +
     `Телефон автошколы: ${SCHOOL.phone}`;
   return sendMessage(b.phone, text);
 }
@@ -110,7 +113,8 @@ export async function notifyStudentReminder(b: {
   const text =
     `⏰ Напоминание, ${b.student_name}!\n\n` +
     `Завтра у вас практическое занятие в ${SCHOOL.name}.\n` +
-    `📅 ${formatDateLong(b.date)}\n🕐 ${b.start_time} - ${b.end_time}\n\n` +
+    `📅 ${formatDateLong(b.date)}\n🕐 ${b.start_time} - ${b.end_time}\n` +
+    `📍 ${SCHOOL.address}\n\n` +
     `Телефон: ${SCHOOL.phone}`;
   return sendMessage(b.phone, text);
 }

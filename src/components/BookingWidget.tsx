@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { SlotView } from "@/lib/types";
+import { SCHOOL } from "@/lib/config";
 
 type DateCard = { date: string; day: number; weekday: string; month: string; isWorkday: boolean };
 
@@ -129,10 +130,12 @@ export function BookingWidget({ dates, phone }: Props) {
           <Row label="Время">
             {done.start} — {done.end}
           </Row>
+          <Row label="Место">{SCHOOL.address}</Row>
+          <Row label="Предоплата">{SCHOOL.prepayment.toLocaleString("ru-RU")} тг</Row>
         </div>
         <p className="mt-4 text-sm text-foreground/60">
           Подтверждение отправлено в WhatsApp. Отменить запись можно не позднее
-          чем за сутки по ссылке из сообщения.
+          чем за 4 часа до занятия по ссылке из сообщения.
         </p>
         <button
           onClick={reset}

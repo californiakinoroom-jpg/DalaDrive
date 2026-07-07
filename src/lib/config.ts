@@ -8,17 +8,30 @@ export const SCHOOL = {
   phoneIntl: "77773251045", // формат для WhatsApp (без +)
   instagram: "avtoshkola_shymkent17",
   slogan: "Жолда сенім - қауіпсіз болашақ!",
+  address: "мкр. Нурсат, ТРЦ Метро",
+  car: "Hyundai Elantra, АКПП (автомат), гос. номер 808WYM17",
+  prepayment: 8000, // тг за урок
 } as const;
+
+// Важные условия — показываются на сайте и в подтверждении.
+export const RULES: string[] = [
+  "Предоплата 8000 тг за урок. При неявке предоплата не возвращается.",
+  "Если не сможете прийти — предупредите минимум за 4 часа до занятия.",
+  "Место встречи: мкр. Нурсат, ТРЦ Метро.",
+  "Учебный автомобиль: Hyundai Elantra, АКПП (автомат), 808WYM17.",
+  "Третий человек в учебной езде запрещён.",
+  "Вождение в городе — с 18 лет. До 18 лет занятия проводятся только в автодроме.",
+];
 
 export const SCHEDULE = {
   // Часы работы
   openHour: 7, // 07:00
   closeHour: 20, // 20:00 - занятие не должно заканчиваться позже
-  lessonMinutes: 110, // 1 час 50 минут
-  breakMinutes: 10, // перерыв между занятиями
+  lessonMinutes: 105, // 1 час 45 минут
+  startStepMinutes: 120, // занятия начинаются каждые 2 часа (07:00, 09:00, ...)
   daysAhead: 30, // запись на месяц вперёд
   workDays: [0, 1, 2, 3, 4, 5, 6] as number[], // 0=Вс ... 6=Сб (7 дней в неделю)
-  cancelMinHours: 24, // отмена не позднее чем за сутки
+  cancelMinHours: 4, // отмена не позднее чем за 4 часа до занятия
 
   // Индивидуальные времена начала слотов по дням недели (0=Вс ... 6=Сб).
   // Если день не указан — используется обычная сетка от openHour.
@@ -53,11 +66,11 @@ export function generateDaySlots(weekday?: number): Slot[] {
   }
 
   const slots: Slot[] = [];
-  const cycle = SCHEDULE.lessonMinutes + SCHEDULE.breakMinutes;
+  const step = SCHEDULE.startStepMinutes;
   const open = SCHEDULE.openHour * 60;
   const close = SCHEDULE.closeHour * 60;
 
-  for (let start = open; start + SCHEDULE.lessonMinutes <= close; start += cycle) {
+  for (let start = open; start + SCHEDULE.lessonMinutes <= close; start += step) {
     slots.push(slotFromStart(start));
   }
   return slots;
