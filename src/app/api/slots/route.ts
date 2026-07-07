@@ -30,10 +30,7 @@ export async function GET(req: NextRequest) {
 
   if (error) {
     console.error("[slots] db error:", error);
-    return Response.json(
-      { error: "Ошибка базы данных", detail: error.message, code: error.code },
-      { status: 500 }
-    );
+    return Response.json({ error: "Ошибка базы данных" }, { status: 500 });
   }
 
   const takenSet = new Set((data ?? []).map((b) => b.start_time as string));
