@@ -21,6 +21,7 @@ const STATUS_STYLE: Record<BookingStatus, string> = {
 export function AdminBookingRow({ b }: { b: Booking }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   async function setStatus(status: BookingStatus) {
     setBusy(true);
@@ -33,6 +34,21 @@ export function AdminBookingRow({ b }: { b: Booking }) {
       router.refresh();
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function remove() {
+    setBusy(true);
+    try {
+      await fetch("/api/admin/booking", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: b.id }),
+      });
+      router.refresh();
+    } finally {
+      setBusy(false);
+      setConfirmDelete(false);
     }
   }
 
@@ -90,6 +106,35 @@ export function AdminBookingRow({ b }: { b: Booking }) {
             className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground/70 hover:border-brand disabled:opacity-50"
           >
             Вернуть
+          </button>
+        )}
+
+        {/* Удаление: два клика для подтверждения */}
+        {confirmDelete ? (
+          <div className="flex gap-1.5">
+            <button
+              onClick={remove}
+              disabled={busy}
+              className="rounded-lg bg-danger px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
+            >
+              Точно удалить?
+            </button>
+            <button
+              onClick={() => setConfirmDelete(false)}
+              disabled={busy}
+              className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground/60 hover:border-foreground/40 disabled:opacity-50"
+            >
+              Отмена
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setConfirmDelete(true)}
+            disabled={busy}
+            title="Удалить запись"
+            className="rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-foreground/50 hover:border-danger hover:text-danger disabled:opacity-50"
+          >
+            🗑
           </button>
         )}
       </div>

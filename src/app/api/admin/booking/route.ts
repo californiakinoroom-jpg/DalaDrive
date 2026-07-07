@@ -61,3 +61,28 @@ export async function PATCH(req: NextRequest) {
 
   return Response.json({ ok: true });
 }
+
+// DELETE /api/admin/booking { id }
+// Полное удаление записи администратором.
+export async function DELETE(req: NextRequest) {
+  if (!(await isAdmin())) {
+    return Response.json({ error: "Нет доступа" }, { status: 401 });
+  }
+
+  let id = "";
+  try {
+    id = ((await req.json()).id ?? "").trim();
+  } catch {
+    return Response.json({ error: "Некорректный запрос" }, { status: 400 });
+  }
+  if (!id) {
+    return Response.json({ error: "Не указан id" }, { status: 400 });
+  }
+
+  const supabase = supabaseAdmin();
+  const { error } = await supabase.from("bookings").delete().eq("id", id);
+  if (error) {
+    return Response.json({ error: "Не удалось удалить" }, { status: 500 });
+  }
+  return Response.json({ ok: true });
+}
