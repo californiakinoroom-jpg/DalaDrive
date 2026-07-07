@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DALA DRIVE — онлайн-запись на практическое занятие
 
-## Getting Started
+Сайт для автошколы DALA DRIVE (Шымкент): курсанты сами записываются на вождение
+по дням и часам. Занятый слот сразу становится недоступным для других.
 
-First, run the development server:
+## Стек
+- **Next.js 16** (App Router) + TypeScript
+- **Tailwind CSS v4**
+- **Supabase** (PostgreSQL) — хранение записей
+- **Green API** — уведомления в WhatsApp
+- Хостинг: **Vercel**
 
+## Возможности
+- Календарь на 30 дней вперёд, слоты 07:00–20:00 (занятие 1 ч 50 мин + 10 мин перерыв).
+- Один инструктор → одна запись на время. Защита от двойной брони на уровне БД.
+- WhatsApp: подтверждение курсанту, уведомление админу, напоминание за день.
+- Отмена курсантом по ссылке — не позднее чем за 24 часа.
+- Админ-панель: список записей по дням, отметки «пришёл / не пришёл / отменить».
+
+## Запуск локально
 ```bash
+npm install
+cp .env.example .env.local   # заполнить значения
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+Открыть http://localhost:3000 — сайт записи, `/admin` — панель.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Настройка Supabase
+1. Создать проект на supabase.com.
+2. SQL Editor → выполнить `supabase/schema.sql`.
+3. Project Settings → API → скопировать `URL` и `service_role` ключ в `.env.local`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Настройка WhatsApp (Green API)
+1. Зарегистрироваться на green-api.com, создать инстанс.
+2. Привязать номер автошколы (сканировать QR в приложении WhatsApp).
+3. Скопировать `idInstance` → `GREEN_API_ID`, `apiTokenInstance` → `GREEN_API_TOKEN`.
+4. `ADMIN_WHATSAPP` — номер для уведомлений о новых записях.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+> Без ключей Green API приложение работает, но сообщения не отправляются
+> (пишутся в лог) — удобно для разработки.
 
-## Learn More
+## Деплой на Vercel
+1. Импортировать репозиторий в Vercel.
+2. Добавить переменные окружения (см. `.env.example`).
+3. Cron напоминаний настроен в `vercel.json` (раз в сутки).
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Настройка расписания
+Часы работы, длительность занятия, перерыв и глубину записи можно менять в
+`src/lib/config.ts` (объект `SCHEDULE`).

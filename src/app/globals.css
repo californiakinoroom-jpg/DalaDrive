@@ -1,26 +1,43 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f6f7f4;
+  --foreground: #16241d;
+
+  /* Фирменные цвета DALA DRIVE */
+  --brand: #0e4d3c;        /* тёмно-зелёный */
+  --brand-dark: #0a3b2e;
+  --brand-light: #146a53;
+  --accent: #c9a87c;       /* бежевый/песочный */
+  --accent-dark: #b08f5f;
+  --surface: #ffffff;
+  --muted: #e7ebe6;
+  --border: #d8ded4;
+  --danger: #b3382f;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-light: var(--brand-light);
+  --color-accent: var(--accent);
+  --color-accent-dark: var(--accent-dark);
+  --color-surface: var(--surface);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-danger: var(--danger);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, Arial, sans-serif;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
 }
