@@ -24,6 +24,7 @@ export function BookingWidget({ dates, phone }: Props) {
   const firstWork = dates.find((d) => d.isWorkday) ?? dates[0];
   const [selectedDate, setSelectedDate] = useState<string>(firstWork.date);
   const [slots, setSlots] = useState<SlotView[] | null>(null);
+  const [dayNote, setDayNote] = useState<string | null>(null);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<SlotView | null>(null);
 
@@ -42,8 +43,10 @@ export function BookingWidget({ dates, phone }: Props) {
       const res = await fetch(`/api/slots?date=${date}`);
       const data = await res.json();
       setSlots(data.slots ?? []);
+      setDayNote(data.note ?? null);
     } catch {
       setSlots([]);
+      setDayNote(null);
     } finally {
       setLoadingSlots(false);
     }
@@ -182,6 +185,11 @@ export function BookingWidget({ dates, phone }: Props) {
       {/* Шаг 2: выбор времени */}
       <div className="p-5 sm:p-6 border-b border-border">
         <StepLabel n={2} text="Выберите время" />
+        {dayNote && (
+          <div className="mt-3 rounded-xl bg-accent/15 border border-accent/40 px-4 py-2.5 text-sm text-accent-dark">
+            🕌 {dayNote}
+          </div>
+        )}
         <div className="mt-4">
           {loadingSlots ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -192,11 +200,9 @@ export function BookingWidget({ dates, phone }: Props) {
           ) : slots && slots.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {slots.map((s) => {
-                const disabled = s.taken || s.past || s.blocked;
+                const disabled = s.taken || s.past;
                 const active = selectedSlot?.start === s.start;
-                const label = s.blocked
-                  ? s.blockedReason ?? "Недоступно"
-                  : s.taken
+                const label = s.taken
                   ? "Занято"
                   : s.past
                   ? "Недоступно"

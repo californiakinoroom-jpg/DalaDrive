@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { generateDaySlots, SCHEDULE, blockedStarts } from "@/lib/config";
+import { generateDaySlots, SCHEDULE } from "@/lib/config";
 import {
   todayLocal,
   nowMinutesLocal,
@@ -48,17 +48,9 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "В этот день записи нет" }, { status: 400 });
   }
 
-  const slot = generateDaySlots().find((s) => s.start === start);
+  const slot = generateDaySlots(weekdayOf(date)).find((s) => s.start === start);
   if (!slot) {
     return Response.json({ error: "Некорректное время" }, { status: 400 });
-  }
-
-  // Слот закрыт по расписанию (напр. джума-намаз в пятницу).
-  if (blockedStarts(weekdayOf(date)).includes(slot.start)) {
-    return Response.json(
-      { error: `Это время недоступно (${SCHEDULE.blockedReason}). Выберите другое.` },
-      { status: 400 }
-    );
   }
 
   // Нельзя записаться в уже прошедшее время (сегодня).

@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { generateDaySlots, SCHEDULE, blockedStarts } from "@/lib/config";
+import { generateDaySlots, SCHEDULE, noteForWeekday } from "@/lib/config";
 import { todayLocal, nowMinutesLocal, upcomingDates, weekdayOf } from "@/lib/dates";
 import type { SlotView } from "@/lib/types";
 
@@ -34,19 +34,17 @@ export async function GET(req: NextRequest) {
   }
 
   const takenSet = new Set((data ?? []).map((b) => b.start_time as string));
-  const blockedSet = new Set(blockedStarts(weekdayOf(date)));
+  const weekday = weekdayOf(date);
   const isToday = date === todayLocal();
   const nowMin = nowMinutesLocal();
 
-  const slots: SlotView[] = generateDaySlots().map((s) => ({
+  const slots: SlotView[] = generateDaySlots(weekday).map((s) => ({
     start: s.start,
     end: s.end,
     taken: takenSet.has(s.start),
     // За 30 минут до начала запись закрываем.
     past: isToday && s.startMinutes - 30 <= nowMin,
-    blocked: blockedSet.has(s.start),
-    blockedReason: blockedSet.has(s.start) ? SCHEDULE.blockedReason : undefined,
   }));
 
-  return Response.json({ slots });
+  return Response.json({ slots, note: noteForWeekday(weekday) ?? null });
 }

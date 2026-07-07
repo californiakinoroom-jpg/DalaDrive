@@ -19,16 +19,19 @@ export const SCHEDULE = {
   daysAhead: 30, // запись на месяц вперёд
   workDays: [0, 1, 2, 3, 4, 5, 6] as number[], // 0=Вс ... 6=Сб (7 дней в неделю)
   cancelMinHours: 24, // отмена не позднее чем за сутки
-  // Слоты, закрытые для записи по дням недели (0=Вс ... 6=Сб).
-  // Пятница (5): 13:00 — джума-намаз.
-  blockedByWeekday: { 5: ["13:00"] } as Record<number, string[] | undefined>,
-  blockedReason: "Джума-намаз",
-};
 
-// Начала слотов, закрытых для указанного дня недели.
-export function blockedStarts(weekday: number): string[] {
-  return SCHEDULE.blockedByWeekday[weekday] ?? [];
-}
+  // Индивидуальные времена начала слотов по дням недели (0=Вс ... 6=Сб).
+  // Если день не указан — используется обычная сетка от openHour.
+  // Пятница (5): перерыв на джума-намаз 12:50–14:00, дневные занятия с 14:00.
+  customStartsByWeekday: {
+    5: ["07:00", "09:00", "11:00", "14:00", "16:00", "18:00"],
+  } as Record<number, string[] | undefined>,
+
+  // Информационные заметки по дням недели (показываются в интерфейсе).
+  noteByWeekday: {
+    5: "Пятница: перерыв на джума-намаз 12:50–14:00",
+  } as Record<number, string | undefined>,
+};
 
 export type Slot = {
   start: string; // "07:00"
@@ -36,22 +39,46 @@ export type Slot = {
   startMinutes: number; // минуты от начала суток
 };
 
-// Генерирует все слоты рабочего дня по расписанию.
-export function generateDaySlots(): Slot[] {
+// Генерирует слоты для конкретного дня недели.
+// Для дней с индивидуальным расписанием берёт заданные времена начала,
+// иначе строит обычную сетку от openHour до closeHour.
+export function generateDaySlots(weekday?: number): Slot[] {
+  const custom =
+    weekday != null ? SCHEDULE.customStartsByWeekday[weekday] : undefined;
+
+  if (custom) {
+    return custom
+      .map((hhmm) => slotFromStart(hhmmToMinutes(hhmm)))
+      .filter((s) => s.startMinutes + SCHEDULE.lessonMinutes <= SCHEDULE.closeHour * 60);
+  }
+
   const slots: Slot[] = [];
   const cycle = SCHEDULE.lessonMinutes + SCHEDULE.breakMinutes;
   const open = SCHEDULE.openHour * 60;
   const close = SCHEDULE.closeHour * 60;
 
   for (let start = open; start + SCHEDULE.lessonMinutes <= close; start += cycle) {
-    const end = start + SCHEDULE.lessonMinutes;
-    slots.push({
-      start: minutesToHHMM(start),
-      end: minutesToHHMM(end),
-      startMinutes: start,
-    });
+    slots.push(slotFromStart(start));
   }
   return slots;
+}
+
+// Заметка для дня недели (или undefined).
+export function noteForWeekday(weekday: number): string | undefined {
+  return SCHEDULE.noteByWeekday[weekday];
+}
+
+function slotFromStart(startMinutes: number): Slot {
+  return {
+    start: minutesToHHMM(startMinutes),
+    end: minutesToHHMM(startMinutes + SCHEDULE.lessonMinutes),
+    startMinutes,
+  };
+}
+
+function hhmmToMinutes(hhmm: string): number {
+  const [h, m] = hhmm.split(":").map(Number);
+  return h * 60 + m;
 }
 
 function minutesToHHMM(m: number): string {
