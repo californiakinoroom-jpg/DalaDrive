@@ -18,4 +18,6 @@ export type SlotView = {
   end: string;
   taken: boolean;
   past: boolean; // время уже прошло (для сегодня)
+  blocked?: boolean; // закрыто по расписанию (напр. джума-намаз)
+  blockedReason?: string;
 };

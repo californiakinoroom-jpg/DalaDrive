@@ -19,7 +19,16 @@ export const SCHEDULE = {
   daysAhead: 30, // запись на месяц вперёд
   workDays: [0, 1, 2, 3, 4, 5, 6] as number[], // 0=Вс ... 6=Сб (7 дней в неделю)
   cancelMinHours: 24, // отмена не позднее чем за сутки
+  // Слоты, закрытые для записи по дням недели (0=Вс ... 6=Сб).
+  // Пятница (5): 13:00 — джума-намаз.
+  blockedByWeekday: { 5: ["13:00"] } as Record<number, string[] | undefined>,
+  blockedReason: "Джума-намаз",
 };
+
+// Начала слотов, закрытых для указанного дня недели.
+export function blockedStarts(weekday: number): string[] {
+  return SCHEDULE.blockedByWeekday[weekday] ?? [];
+}
 
 export type Slot = {
   start: string; // "07:00"

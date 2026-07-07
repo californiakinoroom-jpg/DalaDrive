@@ -192,8 +192,15 @@ export function BookingWidget({ dates, phone }: Props) {
           ) : slots && slots.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {slots.map((s) => {
-                const disabled = s.taken || s.past;
+                const disabled = s.taken || s.past || s.blocked;
                 const active = selectedSlot?.start === s.start;
+                const label = s.blocked
+                  ? s.blockedReason ?? "Недоступно"
+                  : s.taken
+                  ? "Занято"
+                  : s.past
+                  ? "Недоступно"
+                  : "Свободно";
                 return (
                   <button
                     key={s.start}
@@ -211,9 +218,7 @@ export function BookingWidget({ dates, phone }: Props) {
                     <div className="text-base font-semibold">
                       {s.start}–{s.end}
                     </div>
-                    <div className="text-[11px]">
-                      {s.taken ? "Занято" : s.past ? "Недоступно" : "Свободно"}
-                    </div>
+                    <div className="text-[11px]">{label}</div>
                   </button>
                 );
               })}
