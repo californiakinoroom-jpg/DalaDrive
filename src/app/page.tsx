@@ -45,7 +45,7 @@ export default function Home() {
           <div className="mt-4 flex flex-wrap gap-2 text-sm">
             <Badge>7 дней в неделю</Badge>
             <Badge>07:00–20:00</Badge>
-            <Badge>Занятие 1 ч 45 мин</Badge>
+            <Badge>Занятие 1 ч 50 мин</Badge>
             <Badge>Предоплата {SCHOOL.prepayment.toLocaleString("ru-RU")} тг</Badge>
           </div>
         </div>
